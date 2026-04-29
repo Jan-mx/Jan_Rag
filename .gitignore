@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+backend/dist/
+frontend/dist/
+dist-ssr/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!frontend/.env.example
+!backend/.env.example
+
+# Local agent and internal docs
+AGENTS.md
+memory-bank/
+backend/README.md
+frontend/README.md
+frontend/.gitignore
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Caches and temp files
+.cache/
+.temp/
+tmp/
+*.local
+
+# IDE and editor files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local runtime data
+data/
+uploads/
+minio/
+pgdata/
+postgres-data/
+elasticsearch-data/
+ollama-data/
+
+# Docker compose local override files
+docker-compose.override.yml
