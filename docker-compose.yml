@@ -105,18 +105,13 @@ services:
         condition: service_completed_successfully
 
   frontend:
-    image: node:22-alpine
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: jan-rag-frontend
-    working_dir: /workspace/frontend
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
-      VITE_DEV_PROXY_TARGET: ${VITE_DEV_PROXY_TARGET:-http://backend:3000}
     ports:
-      - "5173:5173"
-    volumes:
-      - ./:/workspace
-      - frontend-node-modules:/workspace/frontend/node_modules
+      - "5173:80"
     depends_on:
       - backend
 
@@ -142,7 +137,6 @@ volumes:
   ollama-data:
     external: true
     name: jan_rag_ollama-data
-  frontend-node-modules:
 
 
 

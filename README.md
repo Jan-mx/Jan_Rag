@@ -24,11 +24,122 @@ Jan_Rag 是一个基于 NestJS + Vue 3 的 RAG 知识库与智能助手项目。
 - Embedding Runtime: Ollama
 - Container: Docker Compose
 
+## 效果图展示
+
+以下截图位于 `docs/images/`，用于展示主要页面效果。
+
+### 登录入口
+
+<p align="center">
+  <img src="docs/images/screenshot-login.png" alt="Jan_Rag 登录页效果图" width="100%" />
+</p>
+
+### 知识空间
+
+<p align="center">
+  <img src="docs/images/screenshot-groups.png" alt="Jan_Rag 知识空间效果图" width="100%" />
+</p>
+
+### Jan 智能助手
+
+<p align="center">
+  <img src="docs/images/screenshot-assistant.png" alt="Jan_Rag 智能助手效果图" width="100%" />
+</p>
+
+### 后台治理
+
+<p align="center">
+  <img src="docs/images/screenshot-admin.png" alt="Jan_Rag 后台治理效果图" width="100%" />
+</p>
+
+## 系统架构
+
+```mermaid
+flowchart LR
+  User["用户 / 管理员"] --> Web["Vue 3 工作台<br/>Pinia / Router / Vite"]
+  Web -->|REST API| Backend["NestJS API<br/>Auth Guard / TypeORM"]
+  Web -->|SSE Stream| AssistantApi["Assistant Stream API"]
+
+  Backend --> Auth["Auth / Identity<br/>JWT + Refresh Cookie"]
+  Backend --> Group["Groups<br/>邀请 / 申请 / 成员边界"]
+  Backend --> Document["Documents<br/>上传 / 预览 / 删除"]
+  Backend --> QA["QA<br/>组内证据问答"]
+  Backend --> Admin["Admin<br/>用户与权限治理"]
+  AssistantApi --> Assistant["Assistant<br/>LangGraph.js 会话工作流"]
+
+  Document --> MinIO["MinIO<br/>原始文件"]
+  Document --> Ingestion["Ingestion<br/>解析 / 清洗 / 分块"]
+  Ingestion --> Ollama["Ollama<br/>Embedding Runtime"]
+  Ingestion --> Postgres["PostgreSQL + pgvector<br/>业务数据 / 向量检索"]
+  Ingestion --> Elasticsearch["Elasticsearch + IK<br/>关键词索引"]
+
+  QA --> Retrieval["Hybrid Retrieval<br/>pgvector + ES + RRF"]
+  Assistant --> Retrieval
+  Retrieval --> Postgres
+  Retrieval --> Elasticsearch
+  Assistant --> ChatModel["Chat Completions<br/>DashScope compatible"]
+  QA --> ChatModel
+```
+
+## 核心链路
+
+### 文档入库链路
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Owner as OWNER
+  participant Web as Vue 工作台
+  participant Docs as Documents API
+  participant Store as MinIO
+  participant Parser as Parser / Chunker
+  participant Emb as Ollama Embedding
+  participant Pg as PostgreSQL / pgvector
+  participant ES as Elasticsearch
+
+  Owner->>Web: 上传 txt / md / pdf / docx
+  Web->>Docs: POST /api/documents
+  Docs->>Store: 保存原始文件
+  Docs->>Parser: 解析文本、清洗、分块
+  Parser->>Emb: 生成 chunk embedding
+  Parser->>Pg: 写入文档、chunk、向量
+  Parser->>ES: 写入关键词索引
+  Docs-->>Web: 返回 READY 状态和文档元数据
+```
+
+### 问答与 Assistant 链路
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Member as OWNER / MEMBER
+  participant Web as Vue 工作台
+  participant Api as QA / Assistant API
+  participant Session as Assistant Sessions
+  participant Retrieval as Hybrid Retrieval
+  participant Pg as pgvector
+  participant ES as Elasticsearch
+  participant LLM as Chat Model
+
+  Member->>Web: 提问或发送 Assistant 消息
+  Web->>Api: 携带 JWT、toolMode、groupId
+  Api->>Session: 读取会话、消息、上下文摘要
+  Api->>Retrieval: 按组边界检索证据
+  Retrieval->>Pg: 向量相似度召回
+  Retrieval->>ES: 关键词召回
+  Retrieval-->>Api: RRF 融合结果和 citations
+  Api->>LLM: 拼装 prompt 与证据
+  LLM-->>Api: 生成回答
+  Api-->>Web: QA JSON 或 Assistant SSE start / delta / done
+  Api->>Session: 持久化最终 assistant message
+```
+
 ## 项目结构
 
 ```text
 backend/      NestJS 后端服务
 frontend/     Vue 3 前端应用
+docs/images/  README 效果图资源
 docker/       Docker 相关资源
 docker-compose.yml
 .env.example
@@ -76,6 +187,8 @@ docker compose up -d --build
 - Backend API: http://localhost:18080/api
 - MinIO Console: http://localhost:9001
 - Elasticvue: http://localhost:8088
+
+Docker Compose 中的前端容器会先构建 Vue 静态资源，再通过 Nginx 对外提供页面；浏览器访问 `/api` 时由 Nginx 反向代理到 `backend:3000`。
 
 ## 本地开发
 
@@ -149,6 +262,6 @@ npm run build
 - `docker-compose.yml` 中的默认账号密码仅适合本地开发，生产部署必须替换。
 - 生产环境建议使用服务器环境变量、部署平台 Secret 或 GitHub Actions Secrets 管理敏感信息。
 
-## License
+## 参考
 
-No license has been declared yet.
+java Ai端可参考https://github.com/t1804330987/DD_Rag
