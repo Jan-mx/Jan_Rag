@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
-import crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
 import { BusinessError, compactText, requirePositiveNumber } from '../common/errors';
 import { IdentityService } from '../identity/identity.service';
 

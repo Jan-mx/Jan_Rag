@@ -88,9 +88,15 @@ export class DocumentsService {
   }
 
   private safeFileName(name: string) {
-    const normalized = compactText(String(name ?? '').split(/[\\/]/).pop());
+    const rawName = String(name ?? '').split(/[\\/]/).pop() ?? '';
+    const normalized = compactText(this.decodeBrowserFileName(rawName));
     if (!normalized || normalized.length > 255) throw new BusinessError('File name is invalid');
     return normalized;
+  }
+
+  private decodeBrowserFileName(name: string) {
+    const decoded = Buffer.from(name, 'latin1').toString('utf8');
+    return decoded !== name && !decoded.includes('\uFFFD') ? decoded : name;
   }
 
   private fileExt(fileName: string) {

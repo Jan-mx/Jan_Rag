@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
+import pdfParse = require('pdf-parse');
 import { BusinessError } from '../common/errors';
 import { StorageService } from '../storage/storage.service';
 import { EmbeddingService, ElasticsearchService } from '../retrieval/retrieval.service';
@@ -44,8 +45,9 @@ export class IngestionService {
     const normalized = String(ext ?? '').toLowerCase();
     if (normalized === 'txt' || normalized === 'md') return buffer.toString('utf8');
     if (normalized === 'pdf') {
-      const pdfParse = (await import('pdf-parse')).default;
-      const result = await pdfParse(buffer);
+      // pdf.js v2 misreads pooled Buffer backing arrays on Node 20/22; pass a tight view.
+      const pdfData = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength) as unknown as Buffer;
+      const result = await pdfParse(pdfData, { version: 'v2.0.550' });
       return result.text ?? '';
     }
     if (normalized === 'docx') {

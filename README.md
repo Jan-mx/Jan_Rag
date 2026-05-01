@@ -261,7 +261,3 @@ npm run build
 - `.env.example` 只用于说明变量名和本地开发默认值。
 - `docker-compose.yml` 中的默认账号密码仅适合本地开发，生产部署必须替换。
 - 生产环境建议使用服务器环境变量、部署平台 Secret 或 GitHub Actions Secrets 管理敏感信息。
-
-## 参考
-
-java Ai端可参考https://github.com/t1804330987/DD_Rag
