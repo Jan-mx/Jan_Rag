@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
 import { BusinessError, ForbiddenError, UnauthorizedError } from '../common/errors';
-import { CurrentUser } from '../auth/auth.service';
+import { CurrentUser } from '../auth/auth.types';
 
 @Injectable()
 export class IdentityService {

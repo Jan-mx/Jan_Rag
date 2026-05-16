@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { BusinessError, compactText } from '../common/errors';
-import { ChunkRecord } from '../ingestion/ingestion.service';
+import { ChunkRecord } from '../ingestion/chunk-record';
 
 export interface Citation {
   documentId: number | null;

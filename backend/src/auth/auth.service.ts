@@ -5,14 +5,9 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as crypto from 'node:crypto';
 import { BusinessError, UnauthorizedError, compactText } from '../common/errors';
+import { CurrentUser } from './auth.types';
 
-export interface CurrentUser {
-  userId: number;
-  userCode: string;
-  displayName: string;
-  systemRole: 'ADMIN' | 'USER';
-  mustChangePassword: boolean;
-}
+export type { CurrentUser } from './auth.types';
 
 @Injectable()
 export class PasswordService {

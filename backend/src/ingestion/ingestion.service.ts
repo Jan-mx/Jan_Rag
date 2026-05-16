@@ -5,18 +5,9 @@ import pdfParse = require('pdf-parse');
 import { BusinessError } from '../common/errors';
 import { StorageService } from '../storage/storage.service';
 import { EmbeddingService, ElasticsearchService } from '../retrieval/retrieval.service';
+import { ChunkRecord } from './chunk-record';
 
-export interface ChunkRecord {
-  id?: number;
-  documentId: number;
-  groupId: number;
-  chunkIndex: number;
-  chunkText: string;
-  chunkSummary: string;
-  charStart: number;
-  charEnd: number;
-  metadata: Record<string, unknown>;
-}
+export type { ChunkRecord } from './chunk-record';
 
 @Injectable()
 export class IngestionService {

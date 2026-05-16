@@ -18,6 +18,7 @@ dist-ssr/
 
 # Local agent and internal docs
 AGENTS.md
+.claude/
 memory-bank/
 backend/README.md
 frontend/README.md
